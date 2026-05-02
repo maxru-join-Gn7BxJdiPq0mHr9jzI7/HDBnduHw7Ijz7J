@@ -17,6 +17,7 @@
 
         * {
             -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
         ::selection {
             background: rgba(255, 255, 255, 0.2);
@@ -64,12 +65,12 @@
             transition: transform 0.4s ease;
         }
 
-        .logo-svg {
+        /* Обновленные стили для картинки */
+        .logo-img {
             width: 95px;
             height: 95px;
-            fill: white;
-            fill-opacity: 0.85;
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.15));
+            object-fit: contain;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
         }
 
         .brand-name {
@@ -123,7 +124,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            box-sizing: border-box;
             margin-bottom: 24px;
             transition: border 0.3s ease;
             position: relative;
@@ -254,9 +254,7 @@
 
     <div class="container">
         <div class="logo-box" id="logoBox">
-            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" d="M50,12 C29,12 12,29 12,50 C12,61.5 17.2,71.8 25.3,78.6 L21,92 L35.5,86.8 C39.9,88.8 44.8,90 50,90 C71,90 88,73 88,52 C88,31 71,12 50,12 Z M50,33 C40.6,33 33,40.6 33,50 C33,59.4 40.6,67 50,67 C59.4,67 67,59.4 67,50 C67,40.6 59.4,33 50,33 Z" />
-            </svg>
+            <img src="max.png" alt="Logo" class="logo-img">
             <span class="brand-name">max</span>
         </div>
 
@@ -421,4 +419,3 @@
     </script>
 </body>
 </html>
-
